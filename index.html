@@ -104,16 +104,67 @@
                     </center>
                 </div>  --> 
                 <div id="mapHorus" style="width:100%; height:150px; margin-bottom:15px"></div>
+
                 <button id="startGPS" onclick="tracking()">Enviar GPS</button>
                 <button id="stopGPS" onclick="tracking()" data-theme="b">Detener GPS</button>
 
-                <div id="kmts"class="ui-body ui-body-a">
+                <div style = 'margin-bottom:5px'>
+                <center>
+                <button id="ActualizarNodos" onclick="getMancha()" style ="display: inline-block; margin: 0 auto; width: 49% ;">Actualizar Nodos</button>
+                <button id="DibujarNodos" onclick="dibujarMancha()" style ="display: inline-block; margin: 0 auto; width: 49% ;">Dibujar Nodos</button>
+                </center>
+                </div>
+
+                <div id="kmts"class="ui-body ui-body-a"  style="margin-bottom:15px">
                     <h3> Recorrido </h3>
                     <div id="dvHoraini" style="float:right; font-size:0.8em; margin-top:-45px; text-align:right"></div>
                     <center>
                     <div id="kmts_num"><h2>0.00 Kmts</h2>
                     </div>
                     </center>
+                </div> 
+
+             
+
+                <div id="marcacion"class="ui-body ui-body-a" style="margin-bottom:15px">
+                    <h3> Envío de Marcanción </h3>
+                    <label for="marcancionE">PDV</label>
+                    <select id="marcancionE"> 
+                    </select>
+
+                    <label for="telefono" >Teléfono del Cliente </label>
+                    <input type="number" id="telefono">
+
+                    <label for="estadoPago">Estado de pago</label>
+                    <select id="estadoPago"> 
+                    <option value='99'>SELECCIONE</option> 
+                    <option value='1'>Pagó</option> 
+                    <option value='0'>No pagó</option>    
+                    </select>
+
+                    <div id='infoPago'>
+                    <label for="Monto" >Monto Pagado en lempiras </label>
+                    <input type="number" id="monto" value= '0'>
+                    
+                    <label for="metodoPago">Metodo de pago</label>
+                    <select id="metodoPago"> 
+                    <option value='99'>SELECCIONE</option> 
+                    <option value='1'>Tigo Money</option> 
+                    <option value='2'>Efectivo</option>
+                    <option value='3'>POS</option>       
+                    </select>
+                    </div>
+
+
+                    <div style = 'margin-bottom:5px'>
+                        <center>
+                    <button id="GuardarMarcacion" onclick="guardarMarcacion();" style ="display: inline-block; margin: 0 auto; width: 49% ;">Guardar Marcación</button>
+                    <button id="EnviarMarcacion" onclick="enviarMarcacion();" style ="display: inline-block; margin: 0 auto; width: 49% ;">Enviar Marcaciones</button>
+                        </center>
+                    </div>
+
+                    </center>
+
                 </div> 
 
             </div><!-- Pagina 1 -->
