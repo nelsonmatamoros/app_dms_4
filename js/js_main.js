@@ -3130,7 +3130,12 @@ function guardarMarcacion(){
                 sql+="'"+$("#telefono").val()+"','"+$("#estadoPago").val()+"', '"+$("#metodoPago").val()+"','"+$("#monto").val()+"') ";
                 console.log(sql); 
                 ejecutaSQL(sql,0); 
-                alert('Marcacion Guardada de forma exitosa');  
+                alert('Marcacion Guardada de forma exitosa');
+                $('#marcancionE').val('SELECCIONE').change();
+                $("#estadoPago").val(99).change();
+                $("#monto").val(0)  
+                $("#metodoPago").val(99).change();
+                $("#telefono").val('');
 
         }else{
 
@@ -3200,9 +3205,7 @@ function enviarMarcacion(){
 
                 envio.push({id_pdv: $("#marcancionE").val() ,latitud:position.coords.latitude, longitud:position.coords.longitude, 
                 fecha_completa:fecha , usuario:vDatosUsuario.user,numero_cliente:$("#telefono").val(),
-                   estado_pago:$("#estadoPago").val(), metodo_pago: $("#metodoPago").val(), monto_pago: $("#monto").val()
-
-            });   
+                   estado_pago:$("#estadoPago").val(), metodo_pago: $("#metodoPago").val(), monto_pago: $("#monto").val()});   
 
                     
                     
@@ -3214,9 +3217,15 @@ function enviarMarcacion(){
                 }, { enableHighAccuracy: true }); 
 
 
+                $('#marcancionE').val('SELECCIONE').change();
+                $("#estadoPago").val(99).change();
+                $("#monto").val(0)  
+                $("#metodoPago").val(99).change();
+                $("#telefono").val('');    
+
             }  // fin del if   
                
-               //ejecutaSQL('delete from tbl_horus_marcas_esp ', 0);
+               ejecutaSQL('delete from tbl_horus_marcas_esp ', 0);
 
             var control_envio = envio.length;   
             console.table(envio);
