@@ -3123,7 +3123,7 @@ function guardarMarcacion(){
 
         //alert( fecha );
 
-        if ($("#marcancionE").val()!= 'SELECCIONE' && $("#marcancionE").val()!= 'SELECCIONE' && $("#telefono").val()!='' && $("#estadoPago").val()!='99' ){
+        if ( $("#telefono").val()!='' && $("#estadoPago").val()!='99' ){
 
             var sql="insert into tbl_horus_marcas_esp (LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO) values";
                 sql+="('"+position.coords.latitude+"','"+position.coords.longitude+"','"+$("#marcancionE").val()+"','"+fecha+"','"+vDatosUsuario.user+"',";
@@ -3160,18 +3160,112 @@ function guardarMarcacion(){
 
 function enviarMarcacion(){
 
-    var envio = []; 
+    
 
     // primer paso es llenar con las marcaciones que estan guardadas 
 
-    $.mobile.loading( 'show', {
-                                text: 'Cargando...',
-                                textVisible: true,
-                                theme: 'a',
-                                html: ""
-                            });
 
-    db.transaction(function(cmd2){
+    if ($("#telefono").val()!='' && $("#estadoPago").val()!='99' ){  //en caso que el formulario tenga datos 
+
+        navigator.geolocation.getCurrentPosition(function(position){ // sucesss
+
+        //alert('marcaciones');
+        var latitud = position.coords.latitude;
+        var logitud = position.coords.longitude;
+        var date = new Date().formatoFecha();
+        var fecha=date;
+
+        //alert( fecha );
+
+         
+
+                var sql="insert into tbl_horus_marcas_esp (LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO) values";
+                    sql+="('"+position.coords.latitude+"','"+position.coords.longitude+"','"+$("#marcancionE").val()+"','"+fecha+"','"+vDatosUsuario.user+"',";
+                    sql+="'"+$("#telefono").val()+"','"+$("#estadoPago").val()+"', '"+$("#metodoPago").val()+"','"+$("#monto").val()+"') ";
+                    console.log(sql); 
+                    ejecutaSQL(sql,0); 
+                    //alert('Marcacion Guardada de forma exitosa');
+                    $('#marcancionE').val('SELECCIONE').change();
+                    $("#estadoPago").val(99).change();
+                    $("#monto").val(0)  
+                    $("#metodoPago").val(99).change();
+                    $("#telefono").val('');
+                    sendMarksE();
+                        
+            
+        }, function(){ // error 
+
+                alert('No fue posible obtener sus coordenadas, favor verificar el estado del GPS de su teléfono');
+
+        }, { enableHighAccuracy: true }); 
+
+
+
+
+
+                // navigator.geolocation.getCurrentPosition(function(position){ // sucesss // 
+
+                //     //alert('marcaciones');
+                // var latitud = position.coords.latitude;
+                // var longitud = position.coords.longitude;
+                // var date = new Date().formatoFecha();
+                // var fecha=date;
+
+                // envio.push({id_pdv: $("#marcancionE").val() ,latitud:position.coords.latitude, longitud:position.coords.longitude, 
+                // fecha_completa:fecha , usuario:vDatosUsuario.user,numero_cliente:$("#telefono").val(),
+                //    estado_pago:$("#estadoPago").val(), metodo_pago: $("#metodoPago").val(), monto_pago: $("#monto").val()});   
+
+                    
+                    
+            
+                // }, function(){ // error 
+
+                //         alert('No fue posible obtener sus coordenadas, favor verificar el estado del GPS del dispositivo');
+
+                // }, { enableHighAccuracy: true }); 
+
+
+                // $('#marcancionE').val('SELECCIONE').change();
+                // $("#estadoPago").val(99).change();
+                // $("#monto").val(0)  
+                // $("#metodoPago").val(99).change();
+                // $("#telefono").val('');    
+
+            } else {
+
+                    sendMarksE();
+
+            } // fin del if   
+
+    
+
+    
+
+}
+
+
+Object.defineProperty(Date.prototype, 'formatoFecha', {
+    value: function() {
+        function pad2(n) {  //redeficnion de fecha
+            return (n < 10 ? '0' : '') + n;
+        }
+
+        return this.getFullYear() +'/'+
+               pad2(this.getMonth() + 1) + '/'+
+               pad2(this.getDate()) +' '+
+               pad2(this.getHours()) +':'+
+               pad2(this.getMinutes()) +':'+
+               pad2(this.getSeconds());
+    }
+});
+
+
+
+
+function sendMarksE() {
+
+    var envio = []; 
+        db.transaction(function(cmd2){
 
             cmd2.executeSql("SELECT  LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO from tbl_horus_marcas_esp where 1=1 ", null,function (cmd2, results) {
                 console.log(results);
@@ -3188,51 +3282,22 @@ function enviarMarcacion(){
                 }
 
                 
-
-
                
+                ejecutaSQL('delete from tbl_horus_marcas_esp ', 0);
 
+                $.mobile.loading( 'show', {
+                                    text: 'Cargando...',
+                                    textVisible: true,
+                                    theme: 'a',
+                                    html: ""
+                                });   
 
-            if ($("#marcancionE").val()!= 'SELECCIONE' && $("#telefono").val()!='' && $("#estadoPago").val()!='99' ){  //en caso que el formulario tenga datos 
-
-                navigator.geolocation.getCurrentPosition(function(position){ // sucesss // 
-
-                    //alert('marcaciones');
-                var latitud = position.coords.latitude;
-                var longitud = position.coords.longitude;
-                var date = new Date().formatoFecha();
-                var fecha=date;
-
-                envio.push({id_pdv: $("#marcancionE").val() ,latitud:position.coords.latitude, longitud:position.coords.longitude, 
-                fecha_completa:fecha , usuario:vDatosUsuario.user,numero_cliente:$("#telefono").val(),
-                   estado_pago:$("#estadoPago").val(), metodo_pago: $("#metodoPago").val(), monto_pago: $("#monto").val()});   
-
-                    
-                    
-            
-                }, function(){ // error 
-
-                        alert('No fue posible obtener sus coordenadas, favor verificar el estado del GPS del dispositivo');
-
-                }, { enableHighAccuracy: true }); 
-
-
-                $('#marcancionE').val('SELECCIONE').change();
-                $("#estadoPago").val(99).change();
-                $("#monto").val(0)  
-                $("#metodoPago").val(99).change();
-                $("#telefono").val('');    
-
-            }  // fin del if   
-               
-               ejecutaSQL('delete from tbl_horus_marcas_esp ', 0);
-
-            var control_envio = envio.length;   
-            console.table(envio);
+                var control_envio = envio.length;   
+                console.table(envio);
 
             for (var i = 0; i < envio.length; i++) {
 
-                control_envio--;
+                
 
                 $.ajax({
                         url:ws_url,
@@ -3264,10 +3329,14 @@ function enviarMarcacion(){
                         success: function(data){
 
                             console.log(data);
+                            control_envio--;
+                            console.log(control_envio);
 
                             if(control_envio ==0 ){
 
+                                console.log('entre al final')
                                 $.mobile.loading('hide');
+                                alert('Maracaciones Enviadas de forma Exitosa');
 
                             } 
 
@@ -3293,22 +3362,5 @@ function enviarMarcacion(){
             });
 
 
-        });    
-
+        });
 }
-
-
-Object.defineProperty(Date.prototype, 'formatoFecha', {
-    value: function() {
-        function pad2(n) {  //redeficnion de fecha
-            return (n < 10 ? '0' : '') + n;
-        }
-
-        return this.getFullYear() +'/'+
-               pad2(this.getMonth() + 1) + '/'+
-               pad2(this.getDate()) +' '+
-               pad2(this.getHours()) +':'+
-               pad2(this.getMinutes()) +':'+
-               pad2(this.getSeconds());
-    }
-});
