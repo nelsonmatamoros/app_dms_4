@@ -3113,6 +3113,13 @@ function llenarPDVMarcacion(){
 
 function guardarMarcacion(){
 
+     $.mobile.loading( 'show', {
+                                text: 'Cargando...',
+                                textVisible: true,
+                                theme: 'a',
+                                html: ""
+                            });
+
     navigator.geolocation.getCurrentPosition(function(position){ // sucesss
 
         //alert('marcaciones');
@@ -3127,7 +3134,9 @@ function guardarMarcacion(){
 
             if ( $("#estadoPago").val()==1 && (  $("#metodoPago").val() =='99'  || $("#monto").val() ==''  ) ){
 
-                alert('Faltan datos de pago');    
+                  $.mobile.loading('hide');
+                alert('Faltan datos de pago'); 
+
             }else {
 
 
@@ -3137,8 +3146,9 @@ function guardarMarcacion(){
                     sql+="('"+position.coords.latitude+"','"+position.coords.longitude+"','"+$("#marcancionE").val()+"','"+fecha+"','"+vDatosUsuario.user+"',";
                     sql+="'"+$("#telefono").val()+"','"+$("#estadoPago").val()+"', '"+$("#metodoPago").val()+"','"+$("#monto").val()+"') ";
                     console.log(sql); 
-                    ejecutaSQL(sql,0); 
-                    alert('Marcacion Guardada de forma exitosa');
+                    ejecutaSQL(sql,0);
+                    $.mobile.loading('hide'); 
+                    alert('Marcación Guardada de forma exitosa');
                     $('#marcancionE').val('SELECCIONE').change();
                     $("#estadoPago").val(99).change();
                     $("#monto").val(0)  
@@ -3149,12 +3159,14 @@ function guardarMarcacion(){
 
         }else{
 
+            $.mobile.loading('hide');
             alert('Faltan Datos');
 
         }
             
     }, function(){ // error 
 
+            $.mobile.loading('hide');
             alert('No fue posible obtener sus coordenadas, favor verificar el estado del GPS de su teléfono');
 
     }, { enableHighAccuracy: true });   // fin getcurrent position  
@@ -3327,7 +3339,7 @@ function sendMarksE() {
 
                                 console.log('entre al final')
                                 $.mobile.loading('hide');
-                                alert('Maracaciones Enviadas de forma Exitosa');
+                                alert('Marcaciones Enviadas de forma Exitosa');
 
                             } 
 
