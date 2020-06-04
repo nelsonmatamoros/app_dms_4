@@ -3113,6 +3113,13 @@ function llenarPDVMarcacion(){
 
 function guardarMarcacion(){
 
+     $.mobile.loading( 'show', {
+                                text: 'Cargando...',
+                                textVisible: true,
+                                theme: 'a',
+                                html: ""
+                            });
+
     navigator.geolocation.getCurrentPosition(function(position){ // sucesss
 
         //alert('marcaciones');
@@ -3123,28 +3130,43 @@ function guardarMarcacion(){
 
         //alert( fecha );
 
-        if ( $("#telefono").val()!='' && $("#estadoPago").val()!='99' ){
+        if ( $("#telefono").val()!='' && $("#estadoPago").val()!='99'   ){
 
-            var sql="insert into tbl_horus_marcas_esp (LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO) values";
-                sql+="('"+position.coords.latitude+"','"+position.coords.longitude+"','"+$("#marcancionE").val()+"','"+fecha+"','"+vDatosUsuario.user+"',";
-                sql+="'"+$("#telefono").val()+"','"+$("#estadoPago").val()+"', '"+$("#metodoPago").val()+"','"+$("#monto").val()+"') ";
-                console.log(sql); 
-                ejecutaSQL(sql,0); 
-                alert('Marcacion Guardada de forma exitosa');
-                $('#marcancionE').val('SELECCIONE').change();
-                $("#estadoPago").val(99).change();
-                $("#monto").val(0)  
-                $("#metodoPago").val(99).change();
-                $("#telefono").val('');
+            if ( $("#estadoPago").val()==1 && (  $("#metodoPago").val() =='99'  || $("#monto").val() ==''  ) ){
+
+                  $.mobile.loading('hide');
+                alert('Faltan datos de pago'); 
+
+            }else {
+
+
+            
+
+                var sql="insert into tbl_horus_marcas_esp (LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO) values";
+                    sql+="('"+position.coords.latitude+"','"+position.coords.longitude+"','"+$("#marcancionE").val()+"','"+fecha+"','"+vDatosUsuario.user+"',";
+                    sql+="'"+$("#telefono").val()+"','"+$("#estadoPago").val()+"', '"+$("#metodoPago").val()+"','"+$("#monto").val()+"') ";
+                    console.log(sql); 
+                    ejecutaSQL(sql,0);
+                    $.mobile.loading('hide'); 
+                    alert('Marcación Guardada de forma exitosa');
+                    $('#marcancionE').val('SELECCIONE').change();
+                    $("#estadoPago").val(99).change();
+                    $("#monto").val(0)  
+                    $("#metodoPago").val(99).change();
+                    $("#telefono").val('');
+
+            }
 
         }else{
 
+            $.mobile.loading('hide');
             alert('Faltan Datos');
 
         }
             
     }, function(){ // error 
 
+            $.mobile.loading('hide');
             alert('No fue posible obtener sus coordenadas, favor verificar el estado del GPS de su teléfono');
 
     }, { enableHighAccuracy: true });   // fin getcurrent position  
@@ -3167,17 +3189,26 @@ function enviarMarcacion(){
 
     if ($("#telefono").val()!='' && $("#estadoPago").val()!='99' ){  //en caso que el formulario tenga datos 
 
-        navigator.geolocation.getCurrentPosition(function(position){ // sucesss
 
-        //alert('marcaciones');
-        var latitud = position.coords.latitude;
-        var logitud = position.coords.longitude;
-        var date = new Date().formatoFecha();
-        var fecha=date;
+           if ( $("#estadoPago").val()==1 && (  $("#metodoPago").val() =='99'  || $("#monto").val() ==''  ) ){
 
-        //alert( fecha );
+                 sendMarksE();
 
-         
+
+            }else {
+
+
+                navigator.geolocation.getCurrentPosition(function(position){ // sucesss
+
+                //alert('marcaciones');
+                var latitud = position.coords.latitude;
+                var logitud = position.coords.longitude;
+                var date = new Date().formatoFecha();
+                var fecha=date;
+
+                //alert( fecha );
+
+                 
 
                 var sql="insert into tbl_horus_marcas_esp (LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO) values";
                     sql+="('"+position.coords.latitude+"','"+position.coords.longitude+"','"+$("#marcancionE").val()+"','"+fecha+"','"+vDatosUsuario.user+"',";
@@ -3192,50 +3223,22 @@ function enviarMarcacion(){
                     $("#telefono").val('');
                     sendMarksE();
                         
-            
-        }, function(){ // error 
-
-                alert('No fue posible obtener sus coordenadas, favor verificar el estado del GPS de su teléfono');
-
-        }, { enableHighAccuracy: true }); 
-
-
-
-
-
-                // navigator.geolocation.getCurrentPosition(function(position){ // sucesss // 
-
-                //     //alert('marcaciones');
-                // var latitud = position.coords.latitude;
-                // var longitud = position.coords.longitude;
-                // var date = new Date().formatoFecha();
-                // var fecha=date;
-
-                // envio.push({id_pdv: $("#marcancionE").val() ,latitud:position.coords.latitude, longitud:position.coords.longitude, 
-                // fecha_completa:fecha , usuario:vDatosUsuario.user,numero_cliente:$("#telefono").val(),
-                //    estado_pago:$("#estadoPago").val(), metodo_pago: $("#metodoPago").val(), monto_pago: $("#monto").val()});   
-
                     
-                    
-            
-                // }, function(){ // error 
+                }, function(){ // error 
 
-                //         alert('No fue posible obtener sus coordenadas, favor verificar el estado del GPS del dispositivo');
+                        alert('No fue posible obtener sus coordenadas, favor verificar el estado del GPS de su teléfono');
 
-                // }, { enableHighAccuracy: true }); 
+                }, { enableHighAccuracy: true }); 
 
 
-                // $('#marcancionE').val('SELECCIONE').change();
-                // $("#estadoPago").val(99).change();
-                // $("#monto").val(0)  
-                // $("#metodoPago").val(99).change();
-                // $("#telefono").val('');    
+        }
+
 
             } else {
 
                     sendMarksE();
 
-            } // fin del if   
+    } // fin del if   
 
     
 
@@ -3336,7 +3339,7 @@ function sendMarksE() {
 
                                 console.log('entre al final')
                                 $.mobile.loading('hide');
-                                alert('Maracaciones Enviadas de forma Exitosa');
+                                alert('Marcaciones Enviadas de forma Exitosa');
 
                             } 
 
