@@ -10,7 +10,7 @@ var vLng = 0;
 //var ws_url = 'http://localhost/ws_so/service_so.php'; 
 var ws_url = 'https://190.4.63.207/ws_so/service_so.php';
 var vMontoCredito = [];
-var vDatosUsuario ={"user":"", "login":"", "name":"", "phone":0, "email":"na", "job":"na", "id_dms":0, "perfil":0, "id_pdv_dlr":0};
+var vDatosUsuario ={"user":"", "login":"", "name":"", "phone":0, "email":"na", "job":"na", "id_dms":0, "perfil":0, "id_pdv_dlr":0 , 'horus_completo' :0 };
 var vTitle ="S.O. DMS Experience";
 var map;
 var markHorus;
@@ -349,6 +349,7 @@ function show_datos_user(vUser){
                 vDatosUsuario.phone = results.rows.item(0).phone;
                 vDatosUsuario.perfil = results.rows.item(0).type;
                 vDatosUsuario.id_pdv_dlr = results.rows.item(0).id_pdv_dlr;
+                vDatosUsuario.horus_completo = results.rows.item(0).horus_completo;
 
 
                 $("#id_dms_user").html(vDatosUsuario.id_dms);
@@ -2618,6 +2619,15 @@ function validaPerfil(){
         $("#mnRptG").hide();         
         $("#dvMainGerencial").hide(); 
     }
+
+
+    if (vDatosUsuario.horus_completo==0){
+
+            $("#c_botones_nodos").hide();
+            $("#marcacion").hide();
+    }
+
+
 }
 
 

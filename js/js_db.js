@@ -5,7 +5,7 @@ var db = openDatabase('db_dms_forms', '1.0', 'DB for DMS App Forms', 30 * 1024 *
 db.transaction(function(cmd){
     
     var vFlag = 0;
-    cmd.executeSql('CREATE TABLE IF NOT EXISTS users (id unique, pwd, name, phone, email, job_title, status, login, type, id_dms, license, id_pdv_dlr)');
+    cmd.executeSql('CREATE TABLE IF NOT EXISTS users (id unique, pwd, name, phone, email, job_title, status, login, type, id_dms, license, id_pdv_dlr ,horus_completo)');
     cmd.executeSql('CREATE TABLE IF NOT EXISTS params (id unique, dvalue)');
     cmd.executeSql('CREATE TABLE IF NOT EXISTS tbl_kmtrs (user, fech, lat1, lng1, kmtr)');      
     cmd.executeSql('CREATE TABLE IF NOT EXISTS tbl_forms (id unique, desc, type, version, dtos, scripts, udt_dt)');      
