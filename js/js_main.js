@@ -3152,9 +3152,9 @@ function guardarMarcacion(){
 
             
 
-                var sql="insert into tbl_horus_marcas_esp (LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO) values";
+                var sql="insert into tbl_horus_marcas_esp (LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO,COMENTARIO) values";
                     sql+="('"+position.coords.latitude+"','"+position.coords.longitude+"','"+$("#marcancionE").val()+"','"+fecha+"','"+vDatosUsuario.user+"',";
-                    sql+="'"+$("#telefono").val()+"','"+$("#estadoPago").val()+"', '"+$("#metodoPago").val()+"','"+$("#monto").val()+"') ";
+                    sql+="'"+$("#telefono").val()+"','"+$("#estadoPago").val()+"', '"+$("#metodoPago").val()+"','"+$("#monto").val()+"', '"+$("#m_comentario").val()+"' ) ";
                     console.log(sql); 
                     ejecutaSQL(sql,0);
                     $.mobile.loading('hide'); 
@@ -3164,6 +3164,7 @@ function guardarMarcacion(){
                     $("#monto").val(0)  
                     $("#metodoPago").val(99).change();
                     $("#telefono").val('');
+                    $("#m_comentario").val('');
 
             }
 
@@ -3220,9 +3221,9 @@ function enviarMarcacion(){
 
                  
 
-                var sql="insert into tbl_horus_marcas_esp (LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO) values";
+                var sql="insert into tbl_horus_marcas_esp (LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO,COMENTARIO) values";
                     sql+="('"+position.coords.latitude+"','"+position.coords.longitude+"','"+$("#marcancionE").val()+"','"+fecha+"','"+vDatosUsuario.user+"',";
-                    sql+="'"+$("#telefono").val()+"','"+$("#estadoPago").val()+"', '"+$("#metodoPago").val()+"','"+$("#monto").val()+"') ";
+                    sql+="'"+$("#telefono").val()+"','"+$("#estadoPago").val()+"', '"+$("#metodoPago").val()+"','"+$("#monto").val()+"','"+$("#m_comentario").val()+"' ) ";
                     console.log(sql); 
                     ejecutaSQL(sql,0); 
                     //alert('Marcacion Guardada de forma exitosa');
@@ -3280,7 +3281,7 @@ function sendMarksE() {
     var envio = []; 
         db.transaction(function(cmd2){
 
-            cmd2.executeSql("SELECT  LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO from tbl_horus_marcas_esp where 1=1 ", null,function (cmd2, results) {
+            cmd2.executeSql("SELECT  LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO ,COMENTARIO from tbl_horus_marcas_esp where 1=1 ", null,function (cmd2, results) {
                 console.log(results);
                 var len = results.rows.length;
                
@@ -3289,14 +3290,14 @@ function sendMarksE() {
 
                   envio.push({id_pdv:results.rows[i].ID_PDV,   latitud:results.rows[i].LATITUD, longitud:results.rows[i].LONGITUD,
                    fecha_completa:results.rows[i].FECHA_COMPLETA , usuario:results.rows[i].USUARIO  , numero_cliente:results.rows[i].NUMERO_CLIENTE,
-                   estado_pago:results.rows[i].ESTADO_PAGO, metodo_pago: results.rows[i].METODO_PAGO, monto_pago: results.rows[i].MONTO_PAGO
+                   estado_pago:results.rows[i].ESTADO_PAGO, metodo_pago: results.rows[i].METODO_PAGO, monto_pago: results.rows[i].MONTO_PAGO , comentario:results.rows[i].COMENTARIO
                        });   
                     
                 }
 
                 
                
-                ejecutaSQL('delete from tbl_horus_marcas_esp ', 0);
+                
 
                 $.mobile.loading( 'show', {
                                     text: 'Cargando...',
@@ -3307,6 +3308,8 @@ function sendMarksE() {
 
                 var control_envio = envio.length;   
                 console.table(envio);
+
+            try {    
 
             for (var i = 0; i < envio.length; i++) {
 
@@ -3327,7 +3330,8 @@ function sendMarksE() {
                         "numero_cliente":envio[i].numero_cliente ,
                         "estado_pago":envio[i].estado_pago,
                         "metodo_pago":envio[i].metodo_pago,
-                        "monto_pago":envio[i].monto_pago
+                        "monto_pago":envio[i].monto_pago,
+                        "comentario":envio[i].comentario
 
                         },        
                         dataType:'text',
@@ -3350,6 +3354,7 @@ function sendMarksE() {
                                 console.log('entre al final')
                                 $.mobile.loading('hide');
                                 alert('Marcaciones Enviadas de forma Exitosa');
+                                ejecutaSQL('delete from tbl_horus_marcas_esp ', 0);
 
                             } 
 
@@ -3357,8 +3362,8 @@ function sendMarksE() {
                         }, 
                         error: function(error){
                            
-
-                            //setTimeout(function(){$.mobile.loading('hide');},1500);
+                             alert('Error al enviar las marcaciones, verifique su conexión a internet e intente nuevamente');
+                            $.mobile.loading('hide');
                         }
                     
                 }); 
@@ -3368,7 +3373,11 @@ function sendMarksE() {
                 
             }
 
+        }catch(e){
 
+              alert('Error al enviar las marcaciones, verifique su conexión a internet e intente nuevamente');
+              $.mobile.loading('hide');
+        }
 
             //$.mobile.loading('hide');
                 
