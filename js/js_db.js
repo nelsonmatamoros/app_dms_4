@@ -5,7 +5,7 @@ var db = openDatabase('db_dms_forms', '1.0', 'DB for DMS App Forms', 30 * 1024 *
 db.transaction(function(cmd){
     
     var vFlag = 0;
-    cmd.executeSql('CREATE TABLE IF NOT EXISTS users (id unique, pwd, name, phone, email, job_title, status, login, type, id_dms, license, id_pdv_dlr ,horus_completo)');
+    cmd.executeSql('CREATE TABLE IF NOT EXISTS users (id unique, pwd, name, phone, email, job_title, status, login, type, id_dms, license, id_pdv_dlr)');
     cmd.executeSql('CREATE TABLE IF NOT EXISTS params (id unique, dvalue)');
     cmd.executeSql('CREATE TABLE IF NOT EXISTS tbl_kmtrs (user, fech, lat1, lng1, kmtr)');      
     cmd.executeSql('CREATE TABLE IF NOT EXISTS tbl_forms (id unique, desc, type, version, dtos, scripts, udt_dt)');      
@@ -13,11 +13,12 @@ db.transaction(function(cmd){
     cmd.executeSql('CREATE TABLE IF NOT EXISTS tbl_files (id_file, correl, name, type, strdtos)'); 
     cmd.executeSql('CREATE TABLE IF NOT EXISTS tbl_ventas(particion, anomes, id_dms, producto, unidad, meta, monto)');
     cmd.executeSql('CREATE TABLE IF NOT EXISTS tbl_nodos(nodo, coordenadas)');
-    cmd.executeSql('CREATE TABLE IF NOT EXISTS tbl_horus_marcas_esp(LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO,COMENTARIO )');
+    cmd.executeSql('CREATE TABLE IF NOT EXISTS tbl_horus_marcas_esp(LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO )');
     cmd.executeSql('CREATE TABLE IF NOT EXISTS tbl_plan_dms(aniomes, semana_anio, usuario, cod_empleado_dms, circuit, nombre_circuito, id_pdv, nombre_pdv, dias_semana, ymd_dia, monto_credito)');    
     cmd.executeSql('CREATE TABLE IF NOT EXISTS tbl_ficha_pdv(id_pdv unique, nombre_pdv, duenio, dir, mbl_epin, mbl_tmy, segmento_pop)');
     cmd.executeSql('CREATE TABLE IF NOT EXISTS tbl_visitas_pdv(id_pdv, fecha_ymd, usuario)');
     cmd.executeSql('CREATE TABLE IF NOT EXISTS tbl_ejec_sucursales(anomes, id_dealer, nombre_dealer, id_sucursal, nombre_sucursal, producto, ejecucion, meta, res, unidad)');
+    cmd.executeSql('CREATE TABLE IF NOT EXISTS tbl_fordis04_venta_sugerida(anio, semana, id_pdv, mon, mar, mie, jue, vie, sat, dom, promedio_diario)');
 
     db.transaction(function(cmd){   
         cmd.executeSql('SELECT * FROM users where id =?', ['admin'], function (cmd, results) {

@@ -10,7 +10,8 @@ var vLng = 0;
 //var ws_url = 'http://localhost/ws_so/service_so.php'; 
 var ws_url = 'https://190.4.63.207/ws_so/service_so.php';
 var vMontoCredito = [];
-var vDatosUsuario ={"user":"", "login":"", "name":"", "phone":0, "email":"na", "job":"na", "id_dms":0, "perfil":0, "id_pdv_dlr":0 , 'horus_completo' :0 };
+var vVentaSugerida = [];
+var vDatosUsuario ={"user":"", "login":"", "name":"", "phone":0, "email":"na", "job":"na", "id_dms":0, "perfil":0, "id_pdv_dlr":0};
 var vTitle ="S.O. DMS Experience";
 var map;
 var markHorus;
@@ -349,7 +350,6 @@ function show_datos_user(vUser){
                 vDatosUsuario.phone = results.rows.item(0).phone;
                 vDatosUsuario.perfil = results.rows.item(0).type;
                 vDatosUsuario.id_pdv_dlr = results.rows.item(0).id_pdv_dlr;
-                vDatosUsuario.horus_completo = results.rows.item(0).horus_completo;
 
 
                 $("#id_dms_user").html(vDatosUsuario.id_dms);
@@ -2168,6 +2168,33 @@ function getPlanningDMS(){
     weekNum = getWeekNumber(fech);
 
     $.mobile.loading('show');
+    
+    
+    $.ajax$.ajax({
+            url:ws_url,
+            type:'POST',
+            data:{m:309,vx:userWS, vy:pdwWS},        
+            dataType:'text',
+            success: function(data){
+                
+                var json = eval(data);
+                
+                if( json.length>0 ){
+                    
+                    ejecutaSQL('delete from tbl_fordis04_venta_sugerida', 0);
+                    
+                    for(var i=0; i<json.length; i++){
+                        
+                            ejecutaSQL('insert into tbl_fordis04_venta_sugerida (anio, semana, id_pdv, mon, mar, mie, jue, vie, sat, dom, promedio_diario) values("'+json[i].anio+'","'+json[i].semana+'","'+json[i].id_pdv+'","'+json[i].mon+'","'+json[i].mar+'", "'+json[i].mie+'", "'+json[i].jue+'", "'+json[i].vie+'", "'+json[i].sat+'", "'+json[i].dom+'", "'+json[i].promedio_diario+'")',0);                               
+                                     
+                        
+                    }
+                    
+                   
+                }
+                
+            }
+    })
 
     $.ajax({
             url:ws_url,
@@ -2384,7 +2411,8 @@ function findPDVFordis(vFlag){
     
      //vMontoCredito = [];
     
-    if(vFlag==0){        
+    if(vFlag==0){ 
+        
         try{
         var dvListx= document.getElementById('dvListPDVs');
         document.getElementById('dv_forms_template').removeChild(dvListx);
@@ -2403,7 +2431,8 @@ function findPDVFordis(vFlag){
                     
                     for(k=0;k<len;k++){
                         
-                         vMontoCredito.push({"id_pdv":results.rows[k].id_pdv, "monto_c":results.rows[k].monto_credito});
+                        vMontoCredito.push({"id_pdv":results.rows[k].id_pdv, "monto_c":results.rows[k].monto_credito});
+                        
                         if(vCircuitos.indexOf(results.rows[k].nombre_circuito)==-1){
                             vCircuitos.push(results.rows[k].nombre_circuito);
                         }
@@ -2435,7 +2464,25 @@ function findPDVFordis(vFlag){
             });
         });
 
+        //set Venta sugerida
         
+        db.transaction(function(cmd2){
+
+            cmd2.executeSql("SELECT anio, semana, id_pdv, mon, mar, mie, jue, vie, sat, dom, promedio_diario FROM tbl_nodos where 1=1 ", null,function (cmd2, results) {
+                console.log(results);
+                var len = results.rows.length;
+
+                for(var i=0;i<len; i++){
+                    vVentaSugerida.push({anio:results.rows[i].anio, semana:results.rows[i].semana, id_pdv:results.rows[i].id_pdv, mon:results.rows[i].mon, mar:results.row[i].mar, mie:results.row[i].mie, jue:results.row[i].jue, vie:results.row[i].vie, sat:results.rows[i].sat, dom:results.row[i].dom, promedio_diario:results.row[i].promedio_diario });
+                }
+
+              
+
+                
+            });
+
+
+        }); 
 
     }else{
         try{
@@ -2459,6 +2506,68 @@ function getMontoCredito(id_pdv, vIdQ){
         }            
     }
 }
+
+function getVentaSugerida(id_pdv, vIdQ){
+    obj=null
+    for(i=0;i<vVentaSugerida.length;i++){
+        if(parseInt(vVentaSugerida[i].id_pdv) == parseInt(id_pdv)){
+            obj = documente.getElementById('' + vIdQ);
+            obj.value = parseInt(vVentaSugerida[i].promedio_diario) ;
+            break;
+        }
+    }
+}
+
+function getVentaEstimada(id_pdv, vIdQ){
+
+    obj=null
+
+    var fecha = new Date();
+    var dia = fecha.getDay();
+    obj = documente.getElementById('' + vIdQ);
+    for(i=0;i<vVentaSugerida.length;i++){
+
+        if(parseInt(vVentaSugerida[i].id_pdv) == parseInt(id_pdv)){
+
+            switch(dia){
+
+                case 0:  // domingo
+                obj.value = parseInt(vVentaSugerida[i].dom) ;
+                break;
+
+                case 1: // lunes 
+                obj.value = parseInt(vVentaSugerida[i].mon) ;
+                break;
+
+                case 2: // martes
+                obj.value = parseInt(vVentaSugerida[i].mar) ;
+                break;
+
+                case 3: // miercoles
+                obj.value = parseInt(vVentaSugerida[i].mie) ;
+                break;
+
+                case 4: // jueves
+                obj.value = parseInt(vVentaSugerida[i].jue) ;
+                break;
+
+                case 5: // viernes
+                obj.value = parseInt(vVentaSugerida[i].vie) ;
+                break;
+
+                case 6: // sabado
+                obj.value = parseInt(vVentaSugerida[i].sat) ;
+                break;
+
+            } // fin del switch
+
+            break;
+
+    } // fin del if
+
+    }// fin dell for
+
+}// fin del funcion
 
 function setPDVFordis(vIdPDV){
     //Aqui se ejecuta el set del IDPDV;
@@ -2619,15 +2728,6 @@ function validaPerfil(){
         $("#mnRptG").hide();         
         $("#dvMainGerencial").hide(); 
     }
-
-
-    if (vDatosUsuario.horus_completo==0){
-
-            $("#c_botones_nodos").hide();
-            $("#marcacion").hide();
-    }
-
-
 }
 
 
@@ -3152,9 +3252,9 @@ function guardarMarcacion(){
 
             
 
-                var sql="insert into tbl_horus_marcas_esp (LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO,COMENTARIO) values";
+                var sql="insert into tbl_horus_marcas_esp (LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO) values";
                     sql+="('"+position.coords.latitude+"','"+position.coords.longitude+"','"+$("#marcancionE").val()+"','"+fecha+"','"+vDatosUsuario.user+"',";
-                    sql+="'"+$("#telefono").val()+"','"+$("#estadoPago").val()+"', '"+$("#metodoPago").val()+"','"+$("#monto").val()+"', '"+$("#m_comentario").val()+"' ) ";
+                    sql+="'"+$("#telefono").val()+"','"+$("#estadoPago").val()+"', '"+$("#metodoPago").val()+"','"+$("#monto").val()+"') ";
                     console.log(sql); 
                     ejecutaSQL(sql,0);
                     $.mobile.loading('hide'); 
@@ -3164,7 +3264,6 @@ function guardarMarcacion(){
                     $("#monto").val(0)  
                     $("#metodoPago").val(99).change();
                     $("#telefono").val('');
-                    $("#m_comentario").val('');
 
             }
 
@@ -3221,9 +3320,9 @@ function enviarMarcacion(){
 
                  
 
-                var sql="insert into tbl_horus_marcas_esp (LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO,COMENTARIO) values";
+                var sql="insert into tbl_horus_marcas_esp (LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO) values";
                     sql+="('"+position.coords.latitude+"','"+position.coords.longitude+"','"+$("#marcancionE").val()+"','"+fecha+"','"+vDatosUsuario.user+"',";
-                    sql+="'"+$("#telefono").val()+"','"+$("#estadoPago").val()+"', '"+$("#metodoPago").val()+"','"+$("#monto").val()+"','"+$("#m_comentario").val()+"' ) ";
+                    sql+="'"+$("#telefono").val()+"','"+$("#estadoPago").val()+"', '"+$("#metodoPago").val()+"','"+$("#monto").val()+"') ";
                     console.log(sql); 
                     ejecutaSQL(sql,0); 
                     //alert('Marcacion Guardada de forma exitosa');
@@ -3281,7 +3380,7 @@ function sendMarksE() {
     var envio = []; 
         db.transaction(function(cmd2){
 
-            cmd2.executeSql("SELECT  LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO ,COMENTARIO from tbl_horus_marcas_esp where 1=1 ", null,function (cmd2, results) {
+            cmd2.executeSql("SELECT  LATITUD,LONGITUD,ID_PDV,FECHA_COMPLETA,USUARIO,NUMERO_CLIENTE,ESTADO_PAGO,METODO_PAGO,MONTO_PAGO from tbl_horus_marcas_esp where 1=1 ", null,function (cmd2, results) {
                 console.log(results);
                 var len = results.rows.length;
                
@@ -3290,14 +3389,14 @@ function sendMarksE() {
 
                   envio.push({id_pdv:results.rows[i].ID_PDV,   latitud:results.rows[i].LATITUD, longitud:results.rows[i].LONGITUD,
                    fecha_completa:results.rows[i].FECHA_COMPLETA , usuario:results.rows[i].USUARIO  , numero_cliente:results.rows[i].NUMERO_CLIENTE,
-                   estado_pago:results.rows[i].ESTADO_PAGO, metodo_pago: results.rows[i].METODO_PAGO, monto_pago: results.rows[i].MONTO_PAGO , comentario:results.rows[i].COMENTARIO
+                   estado_pago:results.rows[i].ESTADO_PAGO, metodo_pago: results.rows[i].METODO_PAGO, monto_pago: results.rows[i].MONTO_PAGO
                        });   
                     
                 }
 
                 
                
-                
+                ejecutaSQL('delete from tbl_horus_marcas_esp ', 0);
 
                 $.mobile.loading( 'show', {
                                     text: 'Cargando...',
@@ -3308,8 +3407,6 @@ function sendMarksE() {
 
                 var control_envio = envio.length;   
                 console.table(envio);
-
-            try {    
 
             for (var i = 0; i < envio.length; i++) {
 
@@ -3330,8 +3427,7 @@ function sendMarksE() {
                         "numero_cliente":envio[i].numero_cliente ,
                         "estado_pago":envio[i].estado_pago,
                         "metodo_pago":envio[i].metodo_pago,
-                        "monto_pago":envio[i].monto_pago,
-                        "comentario":envio[i].comentario
+                        "monto_pago":envio[i].monto_pago
 
                         },        
                         dataType:'text',
@@ -3354,7 +3450,6 @@ function sendMarksE() {
                                 console.log('entre al final')
                                 $.mobile.loading('hide');
                                 alert('Marcaciones Enviadas de forma Exitosa');
-                                ejecutaSQL('delete from tbl_horus_marcas_esp ', 0);
 
                             } 
 
@@ -3362,8 +3457,8 @@ function sendMarksE() {
                         }, 
                         error: function(error){
                            
-                             alert('Error al enviar las marcaciones, verifique su conexión a internet e intente nuevamente');
-                            $.mobile.loading('hide');
+
+                            //setTimeout(function(){$.mobile.loading('hide');},1500);
                         }
                     
                 }); 
@@ -3373,11 +3468,7 @@ function sendMarksE() {
                 
             }
 
-        }catch(e){
 
-              alert('Error al enviar las marcaciones, verifique su conexión a internet e intente nuevamente');
-              $.mobile.loading('hide');
-        }
 
             //$.mobile.loading('hide');
                 
